@@ -106,6 +106,36 @@ public class WebCrawlerTests {
     Assert.assertEquals(expectedResult, hrefs);
   }
 
+  @Test
+  public void circularInclusionsDoNotResultInInfiniteLoops() {
+
+    final String DUMMY_URL_6 = "https://example6.com/";
+    final String DUMMY_URL_7 = "https://example7.com/";
+
+    final Set<String> DUMMY_URL_6_HREFS = new LinkedHashSet<>() {{
+      add(DUMMY_URL_7);
+    }};
+
+    final Set<String> DUMMY_URL_7_HREFS = new LinkedHashSet<>() {{
+      add(DUMMY_URL_6);
+    }};
+
+    context.checking(new Expectations() {{
+      oneOf(adapter).requestHrefs(DUMMY_URL_6);
+      will(returnValue(DUMMY_URL_6_HREFS));
+      oneOf(adapter).requestHrefs(DUMMY_URL_7);
+      will(returnValue(DUMMY_URL_7_HREFS));
+    }});
+
+    Set<String> hrefs = webCrawler.findHrefs(DUMMY_URL_6, Integer.MAX_VALUE);
+    Set<String> expectedResult = new HashSet<>();
+    expectedResult.addAll(DUMMY_URL_6_HREFS);
+    expectedResult.addAll(DUMMY_URL_7_HREFS);
+
+    Assert.assertEquals(expectedResult, hrefs);
+  }
+
+
 
 
 }

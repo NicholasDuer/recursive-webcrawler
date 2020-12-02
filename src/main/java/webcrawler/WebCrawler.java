@@ -21,6 +21,8 @@ public class WebCrawler {
      * to reason about. */
     Set<String> hrefs = new LinkedHashSet<>();
 
+    Set<String> visited = new HashSet<>();
+
     /* Queue of URLs to be should queried for hrefs. This webcrawler finds hrefs
      * in a breadth first search fashion. */
     Queue<String> queryQueue = new ArrayDeque<>();
@@ -29,6 +31,8 @@ public class WebCrawler {
     while (!queryQueue.isEmpty() && hrefs.size() < limit) {
       String nextQuery = queryQueue.poll();
 
+      /* Only load URL if we have not visited it previously. */
+      if (!visited.contains(nextQuery)) {
         Set<String> queryResult = adapter.requestHrefs(nextQuery);
 
         for (String href : queryResult) {
@@ -39,7 +43,9 @@ public class WebCrawler {
             break;
           }
         }
+        visited.add(nextQuery);
       }
+    }
 
     return hrefs;
   }
