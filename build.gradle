@@ -1,3 +1,11 @@
+plugins {
+    id 'application'
+}
+
+application {
+    mainClass = 'webcrawler.Demo'
+}
+
 apply plugin: 'java'
 
 description = """href-webcrawler"""
