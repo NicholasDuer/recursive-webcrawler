@@ -1,6 +1,7 @@
 package webcrawler;
 
 import java.util.ArrayDeque;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Queue;
 import java.util.Set;
@@ -25,11 +26,20 @@ public class WebCrawler {
     Queue<String> queryQueue = new ArrayDeque<>();
     queryQueue.add(rootURL);
 
-    while(!queryQueue.isEmpty()) {
-      Set<String> queryResult = adapter.requestHrefs(queryQueue.poll());
-      hrefs.addAll(queryResult);
-      queryQueue.addAll(queryResult);
-    }
+    while (!queryQueue.isEmpty() && hrefs.size() < limit) {
+      String nextQuery = queryQueue.poll();
+
+        Set<String> queryResult = adapter.requestHrefs(nextQuery);
+
+        for (String href : queryResult) {
+          if (hrefs.size() < limit) {
+            hrefs.add(href);
+            queryQueue.add(href);
+          } else {
+            break;
+          }
+        }
+      }
 
     return hrefs;
   }

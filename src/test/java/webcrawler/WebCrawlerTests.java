@@ -1,5 +1,6 @@
 package webcrawler;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.jmock.Expectations;
@@ -54,6 +55,55 @@ public class WebCrawlerTests {
     Assert.assertTrue(hrefs.containsAll(DUMMY_URL_2_HREFS));
     Assert.assertTrue(hrefs.containsAll(DUMMY_URL_3_HREFS));
 
+  }
+
+  @Test
+  public void stopsSearchingRecursivelyForHrefsWhenLimitReached() {
+    /* In this test we set a href limit of 3. URLS 3 and 4 are found
+     * from the root search. URL 5 is found from recursively searching URL 3.
+     * We should not query URL 4 or 5 as we have now hit our limit. */
+
+    final Integer LIMIT = 3;
+
+    context.checking(new Expectations() {{
+      oneOf(adapter).requestHrefs(DUMMY_URL_2);
+      will(returnValue(DUMMY_URL_2_HREFS));
+      oneOf(adapter).requestHrefs(DUMMY_URL_3);
+      will(returnValue(DUMMY_URL_3_HREFS));
+      never(adapter).requestHrefs(DUMMY_URL_4);
+      never(adapter).requestHrefs(DUMMY_URL_5);
+    }});
+
+    Set<String> hrefs = webCrawler.findHrefs(DUMMY_URL_2, LIMIT);
+
+    Set<String> expectedResult = new HashSet<>();
+    expectedResult.addAll(DUMMY_URL_2_HREFS);
+    expectedResult.addAll(DUMMY_URL_3_HREFS);
+
+    Assert.assertEquals(expectedResult, hrefs);
+  }
+
+  @Test
+  public void willNotAddHrefsFromAQueryIfLimitWouldBeExceeded() {
+    /* In this test we set a href limit of 1. URLS 3 and 4 are found
+     * from the root search, but we should only return URL 2.
+     * We do not do any more searches. */
+
+    final Integer LIMIT = 1;
+
+    context.checking(new Expectations() {{
+      oneOf(adapter).requestHrefs(DUMMY_URL_2);
+      will(returnValue(DUMMY_URL_2_HREFS));
+      never(adapter).requestHrefs(DUMMY_URL_3);
+      never(adapter).requestHrefs(DUMMY_URL_4);
+      never(adapter).requestHrefs(DUMMY_URL_5);
+    }});
+
+    Set<String> hrefs = webCrawler.findHrefs(DUMMY_URL_2, LIMIT);
+    Set<String> expectedResult = new HashSet<>();
+    expectedResult.add(DUMMY_URL_3);
+
+    Assert.assertEquals(expectedResult, hrefs);
   }
 
 
