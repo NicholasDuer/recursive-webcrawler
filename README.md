@@ -7,7 +7,7 @@ The repository is written in Java and uses the Jsoup library to navigate web
 pages.
 
 
-To project is built using Gradle. To build, navigate to the recursive-webcrawler directory.
+The project is built using Gradle. To build, navigate to the recursive-webcrawler directory.
 Then, type the following into your terminal or command prompt: 
 
 ```
