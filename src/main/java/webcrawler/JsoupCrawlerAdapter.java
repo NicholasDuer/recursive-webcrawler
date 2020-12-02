@@ -9,8 +9,18 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+/**
+ * Adapter used to communicate with the public API exposed by Jsoup.
+ */
 public class JsoupCrawlerAdapter implements WebCrawlerAdapter {
 
+  /**
+   * Uses the Jsoup library to find all hrefs in the page specified by the
+   * given URL. Will return absolute links. The search is non-recursive.
+   * @param URL URL to the page to be searched.
+   * @return A set of hrefs found in the search. If an exception is thrown
+   *         when trying to access the URL, the method returns an empty set.
+   */
   @Override
   public Set<String> requestHrefs(String URL) {
     try {
